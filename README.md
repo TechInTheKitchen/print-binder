@@ -37,6 +37,17 @@ Open the local address printed by Vite, usually `http://127.0.0.1:5173/`.
 
 Browser integration checks are in `tests/browser.mjs`, `tests/odt-browser.mjs`, and `tests/margins-browser.mjs`. Run them with `node` while the development server is running. They currently use the Windows Chrome installation path; adjust `executablePath` for a different system. Generated documents and screenshots go into ignored `tmp/` folders.
 
+## Publish on GitHub Pages
+
+1. Push the source files, including `.github/workflows/pages.yml`, to `main`.
+2. Open the repository **Settings → Pages**. Under **Build and deployment → Source**, select **GitHub Actions**. Do not select **Deploy from a branch**: that publishes the source HTML without building the JavaScript and CSS.
+3. Keep the custom domain set to `print-binder.the-kitchen.dev` in Pages settings. `public/CNAME` is copied into the build; it does not configure the repository domain setting itself.
+4. Open **Actions → Deploy static app → Run workflow**, choose `main`, and run it after switching the publishing source. Future pushes to `main` build and deploy automatically.
+
+The workflow installs dependencies, runs the unit tests, builds with Vite, and publishes only `dist/`. Relative asset URLs work both on the custom domain and under a GitHub Pages repository path. For other static hosts, run `npm ci` and `npm run build`, then upload the contents of `dist/`.
+
+If the page looks like plain HTML, inspect the deployed page source: a working deployment links to `./assets/index-....js` and `./assets/index-....css`. A `/src/app.js` script means the unbuilt repository root was published. Switch Pages to GitHub Actions and rerun **Deploy static app**; avoid competing branch-based Pages deployments.
+
 ## Use the app
 
 1. Choose a `.pdf` or `.odt` file, or open the sample.
