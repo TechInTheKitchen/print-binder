@@ -1,0 +1,25 @@
+# Dependencies and generated builds
+/node_modules/
+/dist/
+/.vite/
+/.cache/
+
+# Local test documents, screenshots, and reports
+/tmp/
+/test-results/
+/playwright-report/
+/coverage/
+*.log
+
+# Local environment and machine-specific settings
+.env
+.env.*
+!.env.example
+*.local
+/.idea/
+/.vscode/
+
+# Operating-system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini

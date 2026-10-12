@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#e9dfcc"><meta name="description" content="Arrange PDF and ODT pages into printable sheets and folded booklets, privately in your browser."><link rel="icon" type="image/svg+xml" href="./favicon.svg"><title>Print Binder · A little order for your pages</title></head>
+<body>
+  <header><a class="brand" href="./"><span class="book-icon" aria-hidden="true">&#x1F56E;</span> Print Binder</a><div class="appearance"><span class="privacy">Your files stay on your device</span><button id="theme" class="quiet" aria-label="Switch to dark theme">◐</button></div></header>
+  <main>
+    <div class="desk">
+      <section class="settings" aria-label="Document and layout settings">
+        <div class="section-title"><span class="step">01</span><h2>Bring your pages</h2></div>
+        <label class="dropzone" id="dropzone" for="file"><span class="upload-symbol" aria-hidden="true">↥</span><strong id="filename">Choose a PDF or OpenDocument Text file</strong><span id="fileinfo">or drop it here · .pdf / .odt · up to 50 MB</span><input id="file" type="file" accept=".pdf,.odt,application/pdf,application/vnd.oasis.opendocument.text"></label>
+        <button id="demo" class="text-button" type="button">Try an eight-page sample →</button>
+        <details id="cover-options"><summary>Optional cover · print and trim</summary>
+          <label>Upload cover<input id="cover-file" type="file" accept=".pdf,.odt,.png,.jpg,.jpeg,.webp,application/pdf,application/vnd.oasis.opendocument.text,image/png,image/jpeg,image/webp"></label>
+          <p id="cover-info" class="help" role="status">No cover selected. Upload a one- or two-page PDF/ODT, or a PNG/JPEG/WebP image.</p>
+          <label class="toggle"><input id="cover-blank-back" type="checkbox" checked> Keep a blank reverse for a one-page cover</label>
+          <div class="field-row"><label>Cover printer margin (current units)<input id="cover-margin" type="number" min="0" step="any" value="0.25"></label><label>Cover bleed beyond cut (current units)<input id="cover-bleed" type="number" min="0" step="any" value="0.125"></label></div>
+          <button id="remove-cover" class="text-button" type="button" hidden>Remove cover</button>
+          <p class="help">The cover prints on a separate sheet inside the printer margin. Cut at the trim marks to remove the white border; extra artwork (bleed) continues beyond each cut for ink to the finished edge. Increase the margin if your printer clips the artwork or marks. Keep text away from the cuts. The finished cover is smaller than the chosen paper; use larger paper if needed. Print at actual size (100%). A two-page cover supplies both sides; booklets always reserve a reverse side.</p>
+        </details>
+        <div class="section-title"><span class="step">02</span><h2>Shape your sheet</h2></div>
+        <form id="layout" novalidate>
+          <div class="presets" aria-label="Layout presets"><button type="button" data-preset="letter">2 × 2 · Letter</button><button type="button" data-preset="tabloid">3 × 2 · Tabloid</button><button type="button" data-preset="booklet">Folded booklet</button></div>
+          <label>Arrangement<select id="mode"><option value="grid">Grid · pages in reading order</option><option value="booklet">Booklet · fold and bind</option></select></label>
+          <p id="booklet-help" class="help" hidden>Two columns in booklet order. With multiple rows, cut the rows apart, fold each pair, and nest them in reading order. For duplex printing, flip on the long edge on portrait paper or the short edge on landscape paper.</p>
+          <div class="field-row"><label>Paper size<select id="paper"><option value="letter">Letter · 8.5 × 11 in</option><option value="tabloid">Tabloid · 11 × 17 in</option><option value="legal">Legal · 8.5 × 14 in</option><option value="a4">A4 · 210 × 297 mm</option><option value="a3">A3 · 297 × 420 mm</option><option value="custom">Custom</option></select></label><label>Orientation<select id="orientation"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></label></div>
+          <div class="field-row" id="custom-paper" hidden><label>Width (in)<input id="width" type="number" min="1" max="48" step="0.01" value="8.5"></label><label>Height (in)<input id="height" type="number" min="1" max="48" step="0.01" value="11"></label></div>
+          <div class="field-row"><label>Columns<input id="cols" type="number" min="1" max="16" value="2"></label><label>Rows<input id="rows" type="number" min="1" max="16" value="2"></label><label>Units<select id="units"><option value="in">Inches</option><option value="mm">mm</option></select></label></div>
+          <div class="field-row"><label>Outer margin<input id="margin" type="number" min="0" step="0.01" value="0.25"></label><label>Column gap<input id="gap" type="number" min="0" step="0.01" value="0.12"></label><label>Row gap<input id="row-gap" type="number" min="0" step="0.01" value="0.12"></label></div>
+          <label>Source pages<input id="range" type="text" placeholder="All pages, or 1-8, 12, 15-20" aria-describedby="range-help"></label><p class="help" id="range-help">Ranges stay in the order you enter. Leave empty to include every page.</p>
+          <details id="source-margin-options" open><summary>Source page margins</summary>
+            <label class="toggle"><input id="trim-margins" type="checkbox" checked> Trim detected blank page margins</label>
+            <label class="toggle"><input id="consistent-trim" type="checkbox" checked> Use the same crop for pages of the same size</label>
+            <label>Padding around detected content<input id="trim-padding" type="number" min="0" step="0.01" value="0.06"></label>
+            <p class="help" id="margin-check" role="status">Source margins will be checked when a document is loaded.</p>
+            <p class="help">Keeps visible text, images, borders, and footers. Blank pages stay full size. Detection trims near-white edges; review the preview for faint marks. Turn trimming off to retain the original margins.</p>
+          </details>
+          <details id="grid-options"><summary>Customize grid placement</summary>
+            <div class="field-row"><label>Fill cells<select id="flow"><option value="row">Across rows</option><option value="column">Down columns</option><option value="snake">Zigzag rows</option></select></label><label>Page rotation<select id="rotation"><option value="normal">Keep original / use auto rotation</option><option value="clockwise">Force 90° clockwise</option></select></label></div>
+            <div class="field-row"><label>Horizontal alignment<select id="align-x"><option value="center">Center</option><option value="left">Left</option><option value="right">Right</option></select></label><label>Vertical alignment<select id="align-y"><option value="center">Center</option><option value="top">Top</option><option value="bottom">Bottom</option></select></label></div>
+            <label>Page scale (% of available fit)<input id="page-scale" type="number" min="10" max="100" step="1" value="100"></label>
+            <label class="toggle"><input id="reverse" type="checkbox"> Reverse source page order</label><label class="toggle"><input id="enlarge" type="checkbox" checked> Allow enlargement beyond original page size</label>
+            <p class="help">Scale adjusts each page inside its cell, without cropping. These placement controls apply to Grid mode; booklet order stays fixed.</p>
+          </details>
+          <label class="toggle"><input id="rotate" type="checkbox" checked> Rotate pages when it makes them larger</label><label class="toggle"><input id="guides" type="checkbox"> Add page boundaries for cutting</label>
+          <label class="toggle"><input id="staple-marks" type="checkbox"> Add staple position marks</label>
+          <label id="staple-side-field" hidden>Staple side for each grid page<select id="staple-side"><option value="left">Left edge</option><option value="right">Right edge</option></select></label>
+          <p id="staple-help" class="help" hidden>Two small crosses mark staple positions, one-third and two-thirds down each page, 0.125 in inside the selected edge. Marks are printed; check their placement over your content.</p>
+          <div class="readability-controls"><label>Warn below estimated text size (pt)<input id="min-text" type="number" min="4" max="24" step="0.5" value="6"></label><p id="text-check" class="help" role="status">Text size will be checked when a document is loaded.</p><p class="help">6 pt is a starting warning limit you can adjust, not a guarantee of readability. Text inside images is not measured. Font design, contrast, and printer quality also matter.</p></div>
+          <div id="issues" class="issues" aria-live="polite"></div>
+        </form>
+        <div class="section-title"><span class="step">03</span><h2>Ready for paper</h2></div>
+        <div class="field-row export"><label>Download format<select id="format"><option value="pdf">PDF · recommended for printing</option><option value="odt">ODT · fixed page images</option></select></label><button id="download" class="primary" disabled>Download sheets ↓</button></div>
+        <p class="help">The layout is baked into the file. Print at actual size / 100%, one output page per sheet. Your printer still controls paper selection and double-sided printing.</p>
+        <p id="status" role="status">Choose a document to get started.</p>
+      </section>
+      <section class="preview" aria-label="Print preview"><div class="preview-head"><div class="stats"><div><strong id="source-count">—</strong><span>source pages</span></div><div><strong id="sheet-count">—</strong><span id="sheet-label">output pages</span></div><div><strong id="utilization">—</strong><span>sheet coverage</span></div></div><span class="tag" id="layout-tag">2 × 2</span></div><div class="paper-stage"><canvas id="preview-canvas" aria-label="Preview of arranged pages"></canvas><div id="empty-preview"><span>✦</span><p>A place for every page.</p><small>Your sheet preview will appear here.</small></div></div><div class="preview-nav"><button id="prev" class="quiet" aria-label="Previous sheet" disabled>←</button><span id="sheet-position">No document loaded</span><button id="next" class="quiet" aria-label="Next sheet" disabled>→</button></div><p class="help center" id="preview-caption">All source pages fit inside their cells, without cropping.</p></section>
+    </div>
+    <footer>Print Binder <b>/</b> Made for the small pleasure of a well-arranged page.</footer>
+  </main><script type="module" src="/src/app.js"></script>
+</body></html>

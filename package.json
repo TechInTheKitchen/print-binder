@@ -1,0 +1,23 @@
+{
+  "name": "print-binder",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "5.4.149",
+    "html-to-image": "1.11.13",
+    "jszip": "3.10.2"
+  },
+  "devDependencies": {
+    "vite": "7.3.7",
+    "@playwright/test": "1.56.0"
+  },
+  "license": "MIT"
+}
