@@ -13,6 +13,10 @@ export function parseRange(value, count) {
   return pages;
 }
 export function arrange(indices, cols, rows, mode, flow='row', reverse=false) {
+  if(mode==='passport'){
+    const pairs=arrange(indices,2,cols,'booklet');
+    return pairs.map(side=>[...Array.from({length:cols},(_,c)=>side[c*2]),...Array.from({length:cols},(_,c)=>side[c*2+1])]);
+  }
   if(mode==='booklet') {
     const padded=[...indices];while(padded.length%(4*rows))padded.push(null);
     const sides=[];
@@ -49,6 +53,7 @@ export function makeLayout(config, pages) {
   if(!Number.isFinite(rowGap)||rowGap<0)throw new Error('Row gap must be a nonnegative number.');
   if(mode==='grid'&&(!Number.isFinite(pageScale)||pageScale<10||pageScale>100))throw new Error('Page scale must be between 10% and 100% of the available fit.');
   if(mode==='booklet'&&cols!==2)throw new Error('Folded booklets use 2 columns. Choose any number of rows.');
+  if(mode==='passport'&&rows!==2)throw new Error('Passport booklets use 2 rows. Choose any number of columns.');
   const cellWidth=(width-2*margin-(cols-1)*gap)/cols,cellHeight=(height-2*margin-(rows-1)*rowGap)/rows;
   if(cellWidth<12||cellHeight<12)throw new Error('Margins or gaps leave too little room for the pages.');
   const indices=parseRange(config.range,pages.length),sides=arrange(indices,cols,rows,mode,config.flow,config.reverse);
@@ -65,13 +70,14 @@ export function makeLayout(config, pages) {
     area+=w*h;minScale=Math.min(minScale,scale);
     const alignX=mode==='grid'?config.alignX:'center',alignY=mode==='grid'?config.alignY:'center';
     const dx=alignX==='left'?0:alignX==='right'?cellWidth-w:(cellWidth-w)/2,dy=alignY==='top'?0:alignY==='bottom'?cellHeight-h:(cellHeight-h)/2;
-    return {index,rotate,scale,crop:source,width:w,height:h,x:margin+(slot%cols)*(cellWidth+gap)+dx,y:margin+Math.floor(slot/cols)*(cellHeight+rowGap)+dy};
+    return {index,rotate,turn180:mode==='passport'&&slot<cols,scale,crop:source,width:w,height:h,x:margin+(slot%cols)*(cellWidth+gap)+dx,y:margin+Math.floor(slot/cols)*(cellHeight+rowGap)+dy};
   }));
   const blank=sides.flat().filter(p=>p===null).length,coverage=area/(sides.length*width*height);
   const warnings=[];
   if(coverage<.6)warnings.push(`${Math.round((1-coverage)*100)}% of the output sheet area is unused. Try a different orientation, fewer cells, or a paper size closer to your source pages.`);
   if(minScale<.5)warnings.push(`The smallest page is ${Math.round(minScale*100)}% of its original size. Fine print may be difficult to read.`);
-  if(blank)warnings.push(`${blank} empty ${blank===1?'cell':'cells'} ${mode==='booklet'?`added to complete the ${4*rows}-page booklet sheet sequence`:'on the final output page'}.`);
+  if(blank)warnings.push(`${blank} empty ${blank===1?'cell':'cells'} ${mode==='booklet'||mode==='passport'?`added to complete the ${4*(mode==='passport'?cols:rows)}-page booklet sheet sequence`:'on the final output page'}.`);
+  if(mode==='passport'&&cellWidth<=cellHeight)warnings.push('Passport cells are not landscape. Use portrait paper, fewer columns, or wider paper.');
   if(margin<9)warnings.push('Margins under 0.125 in may fall outside your printer’s printable area.');
   const unique=[...new Set(indices)],trimmed=unique.filter(i=>crops[i].width<pages[i].width-.1||crops[i].height<pages[i].height-.1);
   const removed=unique.reduce((sum,i)=>sum+1-crops[i].width*crops[i].height/(pages[i].width*pages[i].height),0)/unique.length;

@@ -10,6 +10,7 @@ Print Binder runs on static hosting, including GitHub Pages. It needs no backend
 - **Full-sheet covers:** separate PDF/ODT or image uploads with printer margins, bleed, and trim marks for ink to the finished edge.
 - **Custom grids:** 1–16 rows and columns, row/column/zigzag ordering, reversal, alignment, rotation, and page scaling.
 - **Folded booklets:** two columns with configurable rows, front/back ordering, and blank-page padding.
+- **Passport booklets:** landscape inner pages paired vertically, with a horizontal fold and a separate portrait cover.
 - **Paper sizes:** Letter, Legal, Tabloid, A4, A3, or custom dimensions.
 - **Margin detection:** optional trimming of blank source-page edges, adjustable padding, and shared crops for consistent sizing.
 - **Text-size estimates:** warnings below a configurable threshold, defaulting to 6 pt.
@@ -74,6 +75,12 @@ The app arranges the file's pages; the printer still controls paper trays, hardw
 Cut the rows apart, fold each pair, and nest the pairs in reading order. Use one row for an uncut center-fold booklet. Blank cells complete whole duplex sheets: four source pages per row.
 
 For this booklet layout, use a long-edge duplex flip on portrait paper or a short-edge flip on landscape paper. Test one sheet first because printer feed direction varies. Large folded stacks may be too thick; separate booklet signatures are not currently supported.
+
+### Passport booklets
+
+Choose **Passport booklet** for two landscape inner pages on each portrait sheet. The upper page is printed upside down so it reads correctly after folding along the horizontal seam. For eight source pages, the sheets are front 8/1, back 2/7, then front 6/3, back 4/5 (top/bottom). Print duplex with a short-edge flip on portrait paper, fold the sheets, and nest them. Multiple columns create separate pairs; cut columns apart before folding. Staple marks follow the horizontal seam.
+
+The cover remains a separate portrait sheet with its own trim marks and bleed; trim and bind it separately. **Cover sheet orientation** can also be changed independently in other layouts. PDF and ODT downloads preserve each output sheet's dimensions when cover and body orientations differ. The passport layout changes page arrangement and orientation; it does not reflow the source document into a new page shape.
 
 ### Source margins and readability
 

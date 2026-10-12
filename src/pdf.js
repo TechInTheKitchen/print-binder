@@ -30,6 +30,7 @@ export async function sourceCanvas(source,index,scale=1.5) {
   return canvas;
 }
 export async function sheetCanvas(source,layout,side,scale=1.5) {
+  layout={...layout,...layout.pageSizes?.[side]};
   const canvas=document.createElement('canvas');canvas.width=Math.ceil(layout.width*scale);canvas.height=Math.ceil(layout.height*scale);
   const ctx=canvas.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.scale(scale,scale);
   for(const p of layout.placements[side]) {
@@ -38,6 +39,7 @@ export async function sheetCanvas(source,layout,side,scale=1.5) {
     const original=source.pages[p.index],crop=p.crop||{x:0,y:0,width:original.width,height:original.height};
     const sx=crop.x/original.width*img.width,sy=crop.y/original.height*img.height,sw=crop.width/original.width*img.width,sh=crop.height/original.height*img.height;
     ctx.save();ctx.translate(p.x,p.y);
+    if(p.turn180){ctx.translate(p.width,p.height);ctx.rotate(Math.PI);}
     if(p.rotate){ctx.translate(p.width,0);ctx.rotate(Math.PI/2);ctx.drawImage(img,sx,sy,sw,sh,0,0,p.height,p.width);}else ctx.drawImage(img,sx,sy,sw,sh,0,0,p.width,p.height);
     ctx.restore();
   }
@@ -56,7 +58,7 @@ export async function exportPdf(source,layout,progress) {
   const embedded=new Map();
   for(let side=0;side<layout.sides.length;side++) {
     progress(`Preparing output page ${side+1} of ${layout.sides.length}…`);
-    const page=out.addPage([layout.width,layout.height]);
+    const sheet={...layout,...layout.pageSizes?.[side]},page=out.addPage([sheet.width,sheet.height]);
     for(const p of layout.placements[side]) {
       if(!p)continue;
       if(source.pages[p.index].original&&source.pages[p.index].pdfPage) {
@@ -68,8 +70,8 @@ export async function exportPdf(source,layout,progress) {
           const corners=[[crop.x,crop.y],[crop.x+crop.width,crop.y],[crop.x,crop.y+crop.height],[crop.x+crop.width,crop.y+crop.height]].map(point=>viewport.convertToPdfPoint(...point));
           embedded.set(p.index,await out.embedPage(original,{left:Math.min(...corners.map(p=>p[0])),bottom:Math.min(...corners.map(p=>p[1])),right:Math.max(...corners.map(p=>p[0])),top:Math.max(...corners.map(p=>p[1]))}));
         }
-        const embed=embedded.get(p.index),angle=((original.getRotation().angle+(p.rotate?90:0))%360+360)%360;
-        const x=p.x,y=layout.height-p.y-p.height;
+        const embed=embedded.get(p.index),angle=((original.getRotation().angle+(p.rotate?90:0)+(p.turn180?180:0))%360+360)%360;
+        const x=p.x,y=sheet.height-p.y-p.height;
         const offsets={0:[0,0],90:[0,p.height],180:[p.width,p.height],270:[p.width,0]}[angle];
         page.drawPage(embed,{x:x+offsets[0],y:y+offsets[1],xScale:p.scale,yScale:p.scale,rotate:degrees(-angle)});
       } else {
@@ -79,12 +81,13 @@ export async function exportPdf(source,layout,progress) {
           clipped.getContext('2d').drawImage(img,crop.x/sourcePage.width*img.width,crop.y/sourcePage.height*img.height,crop.width/sourcePage.width*img.width,crop.height/sourcePage.height*img.height,0,0,clipped.width,clipped.height);
           embedded.set(p.index,await out.embedPng(clipped.toDataURL('image/png')));
         }
-        const img=embedded.get(p.index),y=layout.height-p.y-p.height;
-        page.drawImage(img,p.rotate?{x:p.x,y:y+p.height,width:p.height,height:p.width,rotate:degrees(-90)}:{x:p.x,y,width:p.width,height:p.height});
+        const img=embedded.get(p.index),y=sheet.height-p.y-p.height;
+        const angle=(p.rotate?90:0)+(p.turn180?180:0),offsets={0:[0,0],90:[0,p.height],180:[p.width,p.height],270:[p.width,0]}[angle];
+        page.drawImage(img,{x:p.x+offsets[0],y:y+offsets[1],width:p.rotate?p.height:p.width,height:p.rotate?p.width:p.height,rotate:degrees(-angle)});
       }
     }
     if(layout.sideTypes?.[side]?.startsWith('cover')){
-      for(const {x1,y1,x2,y2} of coverTrimLines(layout,side))page.drawLine({start:{x:x1,y:layout.height-y1},end:{x:x2,y:layout.height-y2},thickness:.5,color:rgb(.2,.2,.2)});
+      for(const {x1,y1,x2,y2} of coverTrimLines(layout,side))page.drawLine({start:{x:x1,y:sheet.height-y1},end:{x:x2,y:sheet.height-y2},thickness:.5,color:rgb(.2,.2,.2)});
       continue;
     }
     if(layout.guides)for(let r=0;r<layout.rows;r++)for(let c=0;c<layout.cols;c++)page.drawRectangle({x:layout.margin+c*(layout.cellWidth+layout.gap),y:layout.height-layout.margin-r*(layout.cellHeight+layout.rowGap)-layout.cellHeight,width:layout.cellWidth,height:layout.cellHeight,borderColor:rgb(.65,.65,.65),borderWidth:.4});

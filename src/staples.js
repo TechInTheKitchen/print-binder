@@ -3,7 +3,14 @@ export function staplePoints(layout,side) {
   if(!layout.stapleMarks)return [];
   if(layout.sideTypes?.[side]?.startsWith('cover'))return [];
   const marks=[],placements=layout.placements[side];
-  if(layout.mode==='booklet') {
+  if(layout.mode==='passport'){
+    const y=layout.margin+layout.cellHeight+layout.rowGap/2;
+    for(let col=0;col<layout.cols;col++){
+      if(![placements[col],placements[layout.cols+col]].some(Boolean))continue;
+      const left=layout.margin+col*(layout.cellWidth+layout.gap);
+      for(const fraction of [1/3,2/3])marks.push({x:left+layout.cellWidth*fraction,y});
+    }
+  } else if(layout.mode==='booklet') {
     const x=layout.margin+layout.cellWidth+layout.gap/2;
     for(let row=0;row<layout.rows;row++) {
       if(!placements.slice(row*2,row*2+2).some(Boolean))continue;

@@ -57,11 +57,20 @@ export async function loadOdt(bytes,progress=()=>{}) {
 }
 export async function exportOdt(source,layout,progress=()=>{}) {
  const zip=new JSZip(),mime='application/vnd.oasis.opendocument.text';zip.file('mimetype',mime,{compression:'STORE'});
- const decl=Object.entries(ns).map(([k,v])=>`xmlns:${k}="${v}"`).join(' '),width=layout.width/72,height=layout.height/72;
- let paragraphs='',entries='';
- for(let i=0;i<layout.sides.length;i++){progress(`Preparing ODT sheet ${i+1} of ${layout.sides.length}…`);const canvas=await sheetCanvas(source,layout,i,2),path=`Pictures/sheet-${i+1}.png`;zip.file(path,canvas.toDataURL('image/png').split(',')[1],{base64:true});entries+=`<manifest:file-entry manifest:full-path="${path}" manifest:media-type="image/png"/>`;paragraphs+=`<text:p text:style-name="${i?'Next':'First'}"><draw:frame draw:name="Sheet${i+1}" text:anchor-type="page" text:anchor-page-number="${i+1}" svg:x="0in" svg:y="0in" svg:width="${width}in" svg:height="${height}in"><draw:image xlink:href="${path}" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/></draw:frame></text:p>`;}
- zip.file('content.xml',`<?xml version="1.0" encoding="UTF-8"?><office:document-content ${decl} office:version="1.3"><office:automatic-styles><style:style style:name="First" style:family="paragraph" style:master-page-name="Standard"><style:paragraph-properties fo:margin="0in"/><style:text-properties fo:font-size="1pt"/></style:style><style:style style:name="Next" style:family="paragraph" style:parent-style-name="First"><style:paragraph-properties fo:break-before="page"/></style:style></office:automatic-styles><office:body><office:text>${paragraphs}</office:text></office:body></office:document-content>`);
- zip.file('styles.xml',`<?xml version="1.0" encoding="UTF-8"?><office:document-styles ${decl} office:version="1.3"><office:styles/><office:automatic-styles><style:page-layout style:name="Page"><style:page-layout-properties fo:page-width="${width}in" fo:page-height="${height}in" fo:margin="0in" style:print-orientation="${width>height?'landscape':'portrait'}"/></style:page-layout></office:automatic-styles><office:master-styles><style:master-page style:name="Standard" style:page-layout-name="Page"/></office:master-styles></office:document-styles>`);
+ const decl=Object.entries(ns).map(([k,v])=>`xmlns:${k}="${v}"`).join(' ');
+ let paragraphs='',entries='',paragraphStyles='',pageLayouts='',masters='';
+ for(let i=0;i<layout.sides.length;i++){
+  progress(`Preparing ODT sheet ${i+1} of ${layout.sides.length}…`);
+  const size=layout.pageSizes?.[i]??layout,width=size.width/72,height=size.height/72;
+  const canvas=await sheetCanvas(source,layout,i,2),path=`Pictures/sheet-${i+1}.png`;
+  zip.file(path,canvas.toDataURL('image/png').split(',')[1],{base64:true});entries+=`<manifest:file-entry manifest:full-path="${path}" manifest:media-type="image/png"/>`;
+  paragraphStyles+=`<style:style style:name="Sheet${i}" style:family="paragraph" style:master-page-name="Master${i}"><style:paragraph-properties fo:margin="0in" ${i?'fo:break-before="page"':''}/><style:text-properties fo:font-size="1pt"/></style:style>`;
+  pageLayouts+=`<style:page-layout style:name="Page${i}"><style:page-layout-properties fo:page-width="${width}in" fo:page-height="${height}in" fo:margin="0in" style:print-orientation="${width>height?'landscape':'portrait'}"/></style:page-layout>`;
+  masters+=`<style:master-page style:name="Master${i}" style:page-layout-name="Page${i}"/>`;
+  paragraphs+=`<text:p text:style-name="Sheet${i}"><draw:frame draw:name="Sheet${i+1}" text:anchor-type="page" text:anchor-page-number="${i+1}" svg:x="0in" svg:y="0in" svg:width="${width}in" svg:height="${height}in"><draw:image xlink:href="${path}" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/></draw:frame></text:p>`;
+ }
+ zip.file('content.xml',`<?xml version="1.0" encoding="UTF-8"?><office:document-content ${decl} office:version="1.3"><office:automatic-styles>${paragraphStyles}</office:automatic-styles><office:body><office:text>${paragraphs}</office:text></office:body></office:document-content>`);
+ zip.file('styles.xml',`<?xml version="1.0" encoding="UTF-8"?><office:document-styles ${decl} office:version="1.3"><office:styles/><office:automatic-styles>${pageLayouts}</office:automatic-styles><office:master-styles>${masters}</office:master-styles></office:document-styles>`);
  zip.file('META-INF/manifest.xml',`<?xml version="1.0" encoding="UTF-8"?><manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.3"><manifest:file-entry manifest:full-path="/" manifest:media-type="${mime}"/><manifest:file-entry manifest:full-path="content.xml" manifest:media-type="text/xml"/><manifest:file-entry manifest:full-path="styles.xml" manifest:media-type="text/xml"/>${entries}</manifest:manifest>`);
  return zip.generateAsync({type:'blob',mimeType:mime,compression:'DEFLATE'});
 }
