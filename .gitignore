@@ -6,6 +6,7 @@
 
 # Local test documents, screenshots, and reports
 /tmp/
+/output/pdf/
 /test-results/
 /playwright-report/
 /coverage/

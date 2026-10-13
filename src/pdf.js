@@ -48,7 +48,7 @@ export async function sheetCanvas(source,layout,side,scale=1.5) {
     for(const {x1,y1,x2,y2} of coverTrimLines(layout,side)){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
     return canvas;
   }
-  if(layout.guides){ctx.strokeStyle='#aaa';ctx.lineWidth=.4;ctx.setLineDash([2,2]);for(let row=0;row<layout.rows;row++)for(let col=0;col<layout.cols;col++)ctx.strokeRect(layout.margin+col*(layout.cellWidth+layout.gap),layout.margin+row*(layout.cellHeight+layout.rowGap),layout.cellWidth,layout.cellHeight);}
+  if(layout.guides){ctx.strokeStyle='#aaa';ctx.lineWidth=.4;ctx.setLineDash([2,2]);for(let row=0;row<layout.rows;row++)for(let col=0;col<layout.cols;col++)ctx.strokeRect((layout.originX??layout.margin)+col*(layout.cellWidth+layout.gap),(layout.originY??layout.margin)+row*(layout.cellHeight+layout.rowGap),layout.cellWidth,layout.cellHeight);}
   ctx.strokeStyle='#666';ctx.lineWidth=.6;ctx.setLineDash([]);
   for(const {x,y} of staplePoints(layout,side)){ctx.beginPath();ctx.moveTo(x-stapleSize,y);ctx.lineTo(x+stapleSize,y);ctx.moveTo(x,y-stapleSize);ctx.lineTo(x,y+stapleSize);ctx.stroke();}
   return canvas;
@@ -90,7 +90,7 @@ export async function exportPdf(source,layout,progress) {
       for(const {x1,y1,x2,y2} of coverTrimLines(layout,side))page.drawLine({start:{x:x1,y:sheet.height-y1},end:{x:x2,y:sheet.height-y2},thickness:.5,color:rgb(.2,.2,.2)});
       continue;
     }
-    if(layout.guides)for(let r=0;r<layout.rows;r++)for(let c=0;c<layout.cols;c++)page.drawRectangle({x:layout.margin+c*(layout.cellWidth+layout.gap),y:layout.height-layout.margin-r*(layout.cellHeight+layout.rowGap)-layout.cellHeight,width:layout.cellWidth,height:layout.cellHeight,borderColor:rgb(.65,.65,.65),borderWidth:.4});
+    if(layout.guides)for(let r=0;r<layout.rows;r++)for(let c=0;c<layout.cols;c++)page.drawRectangle({x:(layout.originX??layout.margin)+c*(layout.cellWidth+layout.gap),y:layout.height-(layout.originY??layout.margin)-r*(layout.cellHeight+layout.rowGap)-layout.cellHeight,width:layout.cellWidth,height:layout.cellHeight,borderColor:rgb(.65,.65,.65),borderWidth:.4});
     for(const {x,y} of staplePoints(layout,side)){
       const color=rgb(.4,.4,.4),cy=layout.height-y;
       page.drawLine({start:{x:x-stapleSize,y:cy},end:{x:x+stapleSize,y:cy},thickness:.6,color});

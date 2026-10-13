@@ -23,6 +23,10 @@
           <div class="presets" aria-label="Layout presets"><button type="button" data-preset="letter">2 × 2 · Letter</button><button type="button" data-preset="tabloid">3 × 2 · Tabloid</button><button type="button" data-preset="booklet">Folded booklet</button><button type="button" data-preset="passport">Passport booklet</button></div>
           <label>Arrangement<select id="mode"><option value="grid">Grid · pages in reading order</option><option value="booklet">Booklet · fold and bind</option><option value="passport">Passport · landscape pages, horizontal fold</option></select></label>
           <p id="booklet-help" class="help" hidden>Two columns in booklet order. With multiple rows, cut the rows apart, fold each pair, and nest them in reading order. For duplex printing, flip on the long edge on portrait paper or the short edge on landscape paper.</p>
+          <div id="passport-options" hidden>
+            <label class="toggle"><input id="passport-actual-size" type="checkbox" checked> Keep original page size (shrink only)</label>
+            <p class="help">One signature, with the first and last selected pages on the outside. Bind at the horizontal seam. Cut away unused columns or the blank half of a final double-sided center leaf; do not bind those empty areas.</p>
+          </div>
           <div class="field-row"><label>Paper size<select id="paper"><option value="letter">Letter · 8.5 × 11 in</option><option value="tabloid">Tabloid · 11 × 17 in</option><option value="legal">Legal · 8.5 × 14 in</option><option value="a4">A4 · 210 × 297 mm</option><option value="a3">A3 · 297 × 420 mm</option><option value="custom">Custom</option></select></label><label>Orientation<select id="orientation"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></label></div>
           <div class="field-row" id="custom-paper" hidden><label>Width (in)<input id="width" type="number" min="1" max="48" step="0.01" value="8.5"></label><label>Height (in)<input id="height" type="number" min="1" max="48" step="0.01" value="11"></label></div>
           <div class="field-row"><label>Columns<input id="cols" type="number" min="1" max="16" value="2"></label><label>Rows<input id="rows" type="number" min="1" max="16" value="2"></label><label>Units<select id="units"><option value="in">Inches</option><option value="mm">mm</option></select></label></div>
@@ -42,6 +46,8 @@
             <label class="toggle"><input id="reverse" type="checkbox"> Reverse source page order</label><label class="toggle"><input id="enlarge" type="checkbox" checked> Allow enlargement beyond original page size</label>
             <p class="help">Scale adjusts each page inside its cell, without cropping. These placement controls apply to Grid mode; booklet order stays fixed.</p>
           </details>
+          <label class="toggle"><input id="edge-to-edge" type="checkbox"> Join pages edge to edge · no gaps</label>
+          <p class="help">Packs matching page tiles tightly together, including embedded cover pages. Overrides row/column gaps and alignment; leaves spare space around the outside. Different page shapes may be cropped to fill the tiles. White space within the source artwork remains.</p>
           <label class="toggle"><input id="rotate" type="checkbox" checked> Rotate pages when it makes them larger</label><label class="toggle"><input id="guides" type="checkbox"> Add page boundaries for cutting</label>
           <label class="toggle"><input id="staple-marks" type="checkbox"> Add staple position marks</label>
           <label id="staple-side-field" hidden>Staple side for each grid page<select id="staple-side"><option value="left">Left edge</option><option value="right">Right edge</option></select></label>

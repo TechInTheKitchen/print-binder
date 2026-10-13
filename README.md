@@ -15,6 +15,7 @@ Print Binder runs on static hosting, including GitHub Pages. It needs no backend
 - **Margin detection:** optional trimming of blank source-page edges, adjustable padding, and shared crops for consistent sizing.
 - **Text-size estimates:** warnings below a configurable threshold, defaulting to 6 pt.
 - **Print guides:** optional cutting boundaries and staple marks on either grid-page edge or the booklet fold seam.
+- **Edge-to-edge tiles:** joins neighboring pages without gaps, even at reduced size, for embedded cover artwork.
 - **Responsive preview:** fits the desktop window and stays visible while scrolling settings; stacked layout on mobile.
 - Light and dark themes, page-range selection, and an eight-page sample.
 
@@ -78,11 +79,13 @@ For this booklet layout, use a long-edge duplex flip on portrait paper or a shor
 
 ### Passport booklets
 
-Choose **Passport booklet** for two landscape inner pages on each portrait sheet. The upper page is printed upside down so it reads correctly after folding along the horizontal seam. For eight source pages, the sheets are front 8/1, back 2/7, then front 6/3, back 4/5 (top/bottom). Print duplex with a short-edge flip on portrait paper, fold the sheets, and nest them. Multiple columns create separate pairs; cut columns apart before folding. Staple marks follow the horizontal seam.
+Choose **Passport booklet** for two landscape inner pages on each portrait sheet. Both pages retain their original orientation on every side. Passport only arranges pages in booklet order; it does not invert or rotate the artwork. Bind or staple along the horizontal seam between the two pages. For eight source pages, the sheets are front 8/1, back 2/7, then front 6/3, back 4/5 (top/bottom). Print duplex with a short-edge flip on portrait paper, fold the sheets, and nest them. Multiple columns create separate pairs; cut columns apart before folding. Staple marks follow the horizontal seam.
 
-The cover remains a separate portrait sheet with its own trim marks and bleed; trim and bind it separately. **Cover sheet orientation** can also be changed independently in other layouts. PDF and ODT downloads preserve each output sheet's dimensions when cover and body orientations differ. The passport layout changes page arrangement and orientation; it does not reflow the source document into a new page shape.
+Passport forms one signature from the selected pages, with the first and last pages on the outside. It does not pad an even page count with bound blank pages: an extra pair becomes a single double-sided center leaf. Cut away the unused half of that column, and any completely empty columns on the final sheet. An odd page count necessarily leaves one blank reverse in the signature. **Keep original page size (shrink only)** preserves landscape A6 artwork size when it fits. A separately uploaded cover remains a portrait sheet with its own trim marks and bleed; trim and bind it separately. **Cover sheet orientation** can also be changed independently in other layouts. PDF and ODT downloads preserve each output sheet's dimensions when cover and body orientations differ. The passport layout changes page arrangement and orientation; it does not reflow the source document into a new page shape.
 
 ### Source margins and readability
+
+**Join pages edge to edge · no gaps** packs the page tiles together and centers the group on the paper. It overrides row/column gaps and per-page alignment, keeping unused space outside the group rather than at the seams. Matching source pages keep their proportions and selected scale; Passport can retain original A6 size. Different page shapes are cropped around the center to fill matching tiles, with a warning. Source artwork containing white margins still needs source-margin trimming if those margins should be removed. Outer printer margins and the separate uploaded-cover settings are retained. Cutting guides and staple marks follow the packed tiles.
 
 Margin trimming is enabled by default. It detects near-white outer edges, keeps visible content, and adds 0.06 in of padding. Selected pages of the same size share a crop by default, maintaining consistent text scaling. Disable the shared crop to fit each page independently, or turn trimming off to preserve original margins. Blank pages stay full size.
 
